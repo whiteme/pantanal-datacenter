@@ -1,0 +1,11 @@
+代理ip网站：https://www.xicidaili.com
+沈宁:https://httpbin.org/ip
+沈宁:用代理ip访问这个网站
+沈宁:response 应该还是代理ip
+沈宁:然后 每个请求 如果 10s 或者 30s 还不响应 也就丢弃了
+
+沈宁:https://redis.io/commands/zadd
+沈宁:擦 网游 或者 各种排行榜 都是用 redis的 sortedset 做的
+沈宁:有序集合
+网上方案:
+https://www.zhihu.com/question/25566731/answer/121979897?utm_source=wechat_session&utm_medium=social&utm_oi=679821945995005952
