@@ -8,7 +8,8 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ import com.pantanal.data.util.StringUtil;
 
 @Service
 public class HouseService {
-  private static Logger logger = Logger.getLogger(RentService.class);
+  private static Logger logger = LoggerFactory.getLogger(RentService.class);
   @Autowired
   private HouseDao houseDao;
 
