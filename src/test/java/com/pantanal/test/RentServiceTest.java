@@ -9,6 +9,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.alibaba.fastjson.JSONObject;
 import com.pantanal.data.house.RentService;
 import com.pantanal.data.quote.QuoteService;
+import com.pantanal.data.service.ProxyIpService;
 import com.pantanal.data.task.TaskManager;
 
 @RunWith(SpringRunner.class)
@@ -23,6 +24,10 @@ public class RentServiceTest {
   @Autowired
   private TaskManager taskManager;
 
+  @Autowired
+  private ProxyIpService proxyIpService;
+  
+  
   @Test
   public void testCombine() {
     // service.handleRentHouseDaily("","北京","","");
@@ -36,4 +41,9 @@ public class RentServiceTest {
     taskManager.importHouse();
   }
 
+  
+  @Test
+  public void testProxyIp() {
+    proxyIpService.checkProxyIp();
+  }
 }

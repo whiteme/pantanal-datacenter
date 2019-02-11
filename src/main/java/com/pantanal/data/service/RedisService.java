@@ -19,6 +19,14 @@ public class RedisService {
   @Autowired
   private RedisTemplate redisTemplate;
 
+  public RedisTemplate getRedisTemplate() {
+    return redisTemplate;
+  }
+
+  public void setRedisTemplate(RedisTemplate redisTemplate) {
+    this.redisTemplate = redisTemplate;
+  }
+
   /**
    * 写入缓存
    * 
