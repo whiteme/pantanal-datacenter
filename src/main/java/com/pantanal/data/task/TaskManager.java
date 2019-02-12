@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.pantanal.data.house.HouseService;
+import com.pantanal.data.service.ProxyIpService;
 
 /**
  * @author gudong
@@ -24,6 +25,8 @@ public class TaskManager {
 
   @Resource
   private HouseService houseService;
+  @Resource
+  private ProxyIpService proxyIpService;
 
   @Scheduled(cron = "00 00 01 * * *")
   public void importHouse() {
@@ -46,5 +49,12 @@ public class TaskManager {
       }
     }
     log.info("=====importHouse end=====");
+  }
+
+  @Scheduled(cron = "00 10/10 * * * *")
+  public void checkProxyIp() {
+    log.info("=====checkProxyIp start=====");
+    proxyIpService.checkProxyIp();
+    log.info("=====checkProxyIp end=====");
   }
 }

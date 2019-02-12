@@ -3,6 +3,10 @@
  */
 package com.pantanal.data.service;
 
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +19,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,37 +33,49 @@ public class ProxyIpService {
   private RedisService redisService;
   private static String ip_pending_list_key = "IP_DAILI_POOL";
 
+  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(0, 100, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+
   /**
    * 
    * @param ip
    * @return
    */
   public void checkProxyIp() {
-    long size = redisService.getRedisTemplate().opsForList().size(ip_pending_list_key);
+    ListOperations<String, String> pendingPortIps = redisService.getRedisTemplate().opsForList();
     String ipPort;
-    long start = System.currentTimeMillis();
     String[] ips;
-    for (int i = 0; i < size; i++) {
-      start = System.currentTimeMillis();
-      ipPort = (String) redisService.getRedisTemplate().opsForList().index(ip_pending_list_key, i);
-      ipPort = StringUtils.remove(ipPort, "HTTP://");
-      ips = StringUtils.split(ipPort, ":");
-      try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build()) {
-        HttpHost proxy = new HttpHost(ips[0], NumberUtils.toInt(ips[1]));
-        RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
-        HttpPost httpPost = new HttpPost("http://httpbin.org/ip");
-        httpPost.setConfig(config);
-        try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
-          long time = System.currentTimeMillis() - start;
-          redisService.zAdd("PROXY_IP_POOL", ips[0] + ":" + ips[1], time);
-          log.info("======valid proxy===" + ips[0] + ":" + ips[1] + " timeout:" + time);
-        } catch (Exception e) {
-          log.error("===CloseableHttpClient ip:" + ips[0] + "[" + ips[1] + "] response error!");
-        }
-      } catch (Exception e) {
-        log.error("===CloseableHttpClient ip:" + ips[0] + "[" + ips[1] + "]  error!");
-      }
+    while ((ipPort = pendingPortIps.leftPop(ip_pending_list_key)) != null) {
+      ips = StringUtils.split(StringUtils.remove(ipPort, "HTTP://"), ":");
+      executeCheck(ips[0], NumberUtils.toInt(ips[1]));
     }
   }
 
+  /**
+   * 
+   * @param ip
+   * @param port
+   */
+  private void executeCheck(String ip, int port) {
+    threadPoolExecutor.execute(new Runnable() {
+      @Override
+      public void run() {
+        long start = System.currentTimeMillis();
+        try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build()) {
+          HttpHost proxy = new HttpHost(ip, port);
+          RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
+          HttpPost httpPost = new HttpPost("http://httpbin.org/ip");
+          httpPost.setConfig(config);
+          try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
+            long time = System.currentTimeMillis() - start;
+            redisService.getRedisTemplate().opsForZSet().add("PROXY_IP_POOL", ip + ":" + port, time);
+            log.info("======valid proxy===" + ip + ":" + port + " timeout:" + time);
+          } catch (Exception e) {
+            log.error("===CloseableHttpClient ip:" + ip + "[" + port + "] response error!");
+          }
+        } catch (Exception e) {
+          log.error("===CloseableHttpClient ip:" + ip + "[" + port + "]  error!");
+        }
+      }
+    });
+  }
 }
