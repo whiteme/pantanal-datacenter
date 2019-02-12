@@ -30,7 +30,7 @@ public class ProxyIpService {
 
   /**
    * 
-   * @param ip
+   * @param
    * @return
    */
   public void checkProxyIp() {
