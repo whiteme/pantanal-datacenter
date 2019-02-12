@@ -4,11 +4,11 @@ version '0.1-SNAPSHOT'
 
 buildscript {
     ext {
-        springBootVersion = '2.1.2.RELEASE'
+        springBootVersion = '1.4.5.RELEASE'
         gradleDockerVersion = '1.2'
     }
     repositories {
-        maven { url "https://repo.spring.io/libs-release" }
+//        maven { url "https://repo.spring.io/libs-release" }
         mavenLocal()
         mavenCentral()
     }
@@ -20,9 +20,9 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+apply plugin: 'spring-boot'
 apply plugin: 'idea'
+apply plugin: 'application'
 apply plugin: 'maven'
 
 sourceCompatibility = 1.8
@@ -33,33 +33,29 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation 'org.springframework.boot:spring-boot-starter'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-test")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
-    compile("org.springframework.boot:spring-boot-starter-data-redis")
-    compile("redis.clients:jedis:3.0.1")
 
     compile('io.springfox:springfox-swagger2:2.6.1')
     compile('io.springfox:springfox-swagger-ui:2.6.1')
-    
-//'dependencies.dependency.systemPath' for com.alibaba:jconsole:jar must specify an absolute path but is ${env.JAVA_HOME}/lib/jconsole.jar in com.alibaba:druid:1.1.13
- // 'dependencies.dependency.systemPath' for com.alibaba:tools:jar must specify an absolute path but is ${env.JAVA_HOME}/lib/tools.jar in com.alibaba:druid:1.1.13
-//所以注释掉了
-  //  compile('com.alibaba:druid:1.1.13')
-  //  compile('com.alibaba:druid-spring-boot-starter:1.1.13')
-  
-    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
-    
+    compile group: 'com.alibaba', name: 'druid', version: '1.1.9'
     compile('mysql:mysql-connector-java:5.1.30')
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '1.4.0.RELEASE'
+
+
+
     compile("org.apache.logging.log4j:log4j-api:2.4.1")
     compile("org.apache.logging.log4j:log4j-core:2.4.1")
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
+
 
     compile("org.apache.directory.studio:org.apache.commons.io:2.4")
     compile("org.json:json:20140107")
+    compile("redis.clients:jedis:2.9.0")
     // https://mvnrepository.com/artifact/commons-lang/commons-lang
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 // https://mvnrepository.com/artifact/commons-codec/commons-codec
@@ -69,7 +65,13 @@ dependencies {
 
 }
 
- 
+springBoot {
+    mainClass = 'com.pantanal.data.PantanalApplication'
+}
+sourceSets {
+    main.java.srcDirs = ['src/main/java']
+    main.resources.srcDirs = ['src/main/resources']
+}
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
