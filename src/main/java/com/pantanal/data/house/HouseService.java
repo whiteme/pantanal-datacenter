@@ -1,9 +1,7 @@
 package com.pantanal.data.house;
 
 import java.io.File;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +53,8 @@ public class HouseService {
       String day = tmps[2];
       Date createTime = DateUtil.toDate(day, "yyyyMMdd");
       ArrayNode tmpNode;
+      List<House> houseList = new ArrayList<House>();
+      int total = arrayNode.size();
       for (JsonNode jsonNode : arrayNode) {
         index++;
         house = new House();
@@ -185,9 +185,21 @@ public class HouseService {
         house.setCity(city);
         house.setSource(source);
 
-        houseDao.save(house);
+        houseList.add(house);
+        if(index >= 100 && (index % 100 == 0)){
+          houseDao.save(houseList);
+          houseList.clear();
+          logger.info("=====file:"+file.getName()+" has imported " + index + " lines. total:"+total);
+        }
 
       }
+
+      if(houseList.size() >  0){
+        houseDao.save(houseList);
+        houseList.clear();
+        logger.info("=====file:"+file.getName()+" has imported " + index + " lines. total:"+total);
+      }
+
 
       // 保存日志
       ImportLog importLog = new ImportLog();
