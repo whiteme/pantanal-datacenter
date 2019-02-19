@@ -2,6 +2,7 @@ package com.pantanal.data.web;
 
 import com.alibaba.fastjson.JSONObject;
 import com.pantanal.data.quote.QuoteService;
+import com.pantanal.data.task.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,11 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/wx")
+@RequestMapping(value = "/xw")
 public class QuoteController {
 
     @Autowired
     private QuoteService quoteService;
+    @Autowired
+    private TaskManager taskManager;
 
 
     @RequestMapping(value="/quote/renthouse" , method = RequestMethod.GET)
@@ -38,6 +41,20 @@ public class QuoteController {
             price.add(m.get("price"));
             vol.add(m.get("volume"));
         }
+
+        retString = JSONObject.toJSONString(tmp);
+        return retString;
+    }
+    
+    
+    @RequestMapping(value="/house/import" , method = RequestMethod.GET)
+    public String importHouse(){
+        String retString = null;
+        taskManager.importHouse();
+
+        Map tmp = new HashMap();
+
+        tmp.put("success" , true);
 
         retString = JSONObject.toJSONString(tmp);
         return retString;

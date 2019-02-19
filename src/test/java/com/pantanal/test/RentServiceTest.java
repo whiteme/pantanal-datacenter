@@ -29,7 +29,7 @@ public class RentServiceTest {
 
   @Autowired
   private ProxyIpService proxyIpService;
-  
+
   
   @Test
   public void testCombine() {

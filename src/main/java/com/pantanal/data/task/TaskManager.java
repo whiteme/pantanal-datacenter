@@ -31,7 +31,7 @@ public class TaskManager {
   @Scheduled(cron = "00 00 01 * * *")
   public void importHouse() {
     log.info("=====importHouse start=====");
-    String dirPath = "/opt/xuwu/housedata";
+    String dirPath = "/opt/xuwu/crawl-data";
     File dir = new File(dirPath);
     if (!dir.exists()) {
       log.error("=====importHouse error, dir:" + dirPath + " not existed!=====");
