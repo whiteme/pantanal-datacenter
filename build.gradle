@@ -17,6 +17,7 @@ configurations {
     //remove default logger
     all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     all*.exclude group: 'log4j', module: 'log4j'
+    all*.exclude group: 'com.vaadin.external.google',module:'android-json'
     compile.exclude group:'ch.qos.logback'
 }
                                                                                                                                                                                              
