@@ -139,7 +139,7 @@ public class RedisService {
    * 
    * @param key
    * @param hashKey
-   * @param value
+   * @param
    */
   public void hmDel(String key, Object hashKey) {
     HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();

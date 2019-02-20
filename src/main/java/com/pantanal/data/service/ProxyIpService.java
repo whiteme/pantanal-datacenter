@@ -67,7 +67,7 @@ public class ProxyIpService {
                 try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build()) {
                     HttpHost proxy = new HttpHost(ip, port);
                     RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
-                    HttpPost httpPost = new HttpPost("http://httpbin.org/ip");
+                    HttpPost httpPost = new HttpPost("http://www.baidu.com");
                     httpPost.setConfig(config);
                     try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
                         long time = System.currentTimeMillis() - start;
