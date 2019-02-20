@@ -184,12 +184,18 @@ public class HouseService {
           house.setVisitCnt(StringUtil.getInt(tmp));
         }
 
+        tmpNode = (ArrayNode) jsonNode.get("city");
+        if (tmpNode != null) {
+          tmp = tmpNode.get(0).asText();
+          city = tmp;
+        }
+
         house.setCreateDate(createTime);
         house.setCity(city);
         house.setSource(source);
 
         houseList.add(house);
-        if(index >= 1000 && (index % 1000 == 0)){
+        if(index >= 5000 && (index % 5000 == 0)){
           houseDao.save(houseList);
           houseList.clear();
           logger.info("=====file:"+file.getName()+" has imported " + index + " lines. total:"+total);

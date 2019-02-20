@@ -49,7 +49,7 @@ public class ProxyIpService {
             try {
                 executeCheck(ips[0], ips.length <= 1 ? 80 : NumberUtils.toInt(ips[1]));
             } catch (Exception e) {
-                log.error("===executeCheck error! IPORT:" + ipPort, e);
+                log.debug("===executeCheck error! IPORT:" + ipPort, e);
             }
         }
     }
@@ -74,10 +74,10 @@ public class ProxyIpService {
                         redisService.getRedisTemplate().opsForZSet().add("PROXY_IP_POOL", ip + ":" + port, time);
                         log.info("======valid proxy===" + ip + ":" + port + " timeout:" + time);
                     } catch (Exception e) {
-                        log.error("===CloseableHttpClient ip:" + ip + "[" + port + "] response error!");
+                        log.debug("===CloseableHttpClient ip:" + ip + "[" + port + "] response error!", e);
                     }
                 } catch (Exception e) {
-                    log.error("===CloseableHttpClient ip:" + ip + "[" + port + "]  error!");
+                    log.debug("===CloseableHttpClient ip:" + ip + "[" + port + "]  error!", e);
                 }
             }
         });
