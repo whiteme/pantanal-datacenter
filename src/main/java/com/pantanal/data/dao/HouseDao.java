@@ -48,4 +48,15 @@ public class HouseDao {
 
     }
 
+    public boolean save(House[] houseList) {
+        List<Object[]> paramList = new ArrayList<Object[]>();
+        for (House house : houseList) {
+            paramList.add(getInsertParams(house));
+        }
+        int[] temp = xuwuJdbcTemplate.batchUpdate(insertSql, paramList);
+
+        return true;
+
+    }
+
 }

@@ -2,6 +2,9 @@ package com.pantanal.data.house;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -186,7 +189,7 @@ public class HouseService {
         house.setSource(source);
 
         houseList.add(house);
-        if(index >= 100 && (index % 100 == 0)){
+        if(index >= 1000 && (index % 1000 == 0)){
           houseDao.save(houseList);
           houseList.clear();
           logger.info("=====file:"+file.getName()+" has imported " + index + " lines. total:"+total);
