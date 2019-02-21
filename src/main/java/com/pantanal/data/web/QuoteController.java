@@ -1,7 +1,7 @@
 package com.pantanal.data.web;
 
 import com.alibaba.fastjson.JSONObject;
-import com.pantanal.data.quote.QuoteService;
+import com.pantanal.data.service.quote.QuoteService;
 import com.pantanal.data.task.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
