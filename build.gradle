@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 
 group 'pantanal'
-version '0.1-SNAPSHOT'
+version '1.0'
 sourceCompatibility = '1.8'
 
 repositories {
@@ -14,42 +14,32 @@ repositories {
 }
 
 configurations {
-    //remove default logger
     all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     all*.exclude group: 'log4j', module: 'log4j'
     all*.exclude group: 'com.vaadin.external.google',module:'android-json'
     compile.exclude group:'ch.qos.logback'
 }
-                                                                                                                                                                                             
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-test")
-    compile("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'io.springfox:springfox-swagger2:2.6.1'
+    implementation 'io.springfox:springfox-swagger-ui:2.6.1'
+    implementation 'com.alibaba:druid:1.1.9'
+    implementation 'com.alibaba:fastjson:1.2.54'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.7'
+    implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    implementation 'org.json:json:20140107'
+    implementation 'redis.clients:jedis:2.9.0'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'commons-codec:commons-codec:1.10'
 
-    compile('io.springfox:springfox-swagger2:2.6.1')
-    compile('io.springfox:springfox-swagger-ui:2.6.1')
-    compile group: 'com.alibaba', name: 'druid', version: '1.1.9'
-    compile('mysql:mysql-connector-java:5.1.30')
-    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.54'
+    runtimeOnly 'mysql:mysql-connector-java:5.1.30'
+    //providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
-
-
-    implementation('org.springframework.boot:spring-boot-starter-log4j2')
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
-
-
-    compile("org.apache.directory.studio:org.apache.commons.io:2.4")
-    compile("org.json:json:20140107")
-    compile("redis.clients:jedis:2.9.0")
-    // https://mvnrepository.com/artifact/commons-lang/commons-lang
-    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-// https://mvnrepository.com/artifact/commons-codec/commons-codec
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
-
-
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

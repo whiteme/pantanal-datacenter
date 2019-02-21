@@ -30,7 +30,7 @@ public class RentServiceTest {
   @Test
   public void contextLoads() {
   }
-  
+
   @Test
   public void testCombine() {
     // service.handleRentHouseDaily("","北京","","");
