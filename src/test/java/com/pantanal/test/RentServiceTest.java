@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.alibaba.fastjson.JSONObject;
-import com.pantanal.data.house.RentService;
-import com.pantanal.data.quote.QuoteService;
+import com.pantanal.data.service.house.RentService;
+import com.pantanal.data.service.quote.QuoteService;
 import com.pantanal.data.service.ProxyIpService;
 import com.pantanal.data.task.TaskManager;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,7 +30,7 @@ public class RentServiceTest {
   @Test
   public void contextLoads() {
   }
-
+  
   @Test
   public void testCombine() {
     // service.handleRentHouseDaily("","北京","","");
