@@ -1,1 +1,7 @@
-/.gradle/
+.gradle/
+build/
+.idea/
+.settings/
+bin/
+build/
+gradle/
