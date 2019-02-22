@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/xw")
+@RequestMapping(value = "/wx")
 public class QuoteController {
 
     @Autowired

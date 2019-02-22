@@ -3,6 +3,8 @@
  */
 package com.pantanal.data.entity;
 
+import java.util.Date;
+
 /**
  * @author gudong
  *
@@ -83,6 +85,11 @@ public class ImportLog {
 
   public void setCreateDate(java.util.Date createDate) {
     this.createDate = createDate;
+  }
+
+
+  public static void main(String args[]){
+    new Date("20180102");
   }
 
 }
