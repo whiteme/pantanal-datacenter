@@ -3,17 +3,12 @@
  */
 package com.pantanal.data.service;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import com.pantanal.data.task.ProxyValidateTask;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.http.HttpHost;
@@ -22,7 +17,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.ListOperations;
@@ -39,7 +33,7 @@ public class ProxyIpService {
     private RedisService redisService;
     private static String ip_pending_list_key = "IP_DAILI_POOL";
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 16, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(0, 100, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
     /**
      *
@@ -47,29 +41,16 @@ public class ProxyIpService {
      * @return
      */
     public void checkProxyIp() {
-
-        Properties prop = new Properties();
         ListOperations<String, String> pendingPortIps = redisService.getRedisTemplate().opsForList();
         String ipPort;
         String[] ips;
-        CloseableHttpClient hc = HttpClients.createDefault();
-        int count = 0;
         while ((ipPort = pendingPortIps.leftPop(ip_pending_list_key)) != null) {
             ips = StringUtils.split(StringUtils.remove(ipPort, "HTTP://"), ":");
             try {
-//                executeCheck(ips[0], ips.length <= 1 ? 80 : NumberUtils.toInt(ips[1]));
-
-                doCheckTask(hc , ips[0] , ips.length <= 1 ? 80 + "" : NumberUtils.toInt(ips[1]) + "" , prop);
-                count ++;
-                log.info("Total check count {}" , count);
+                executeCheck(ips[0], ips.length <= 1 ? 80 : NumberUtils.toInt(ips[1]));
             } catch (Exception e) {
                 log.debug("===executeCheck error! IPORT:" + ipPort, e);
             }
-        }
-        try {
-            hc.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -86,7 +67,7 @@ public class ProxyIpService {
                 try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().build()) {
                     HttpHost proxy = new HttpHost(ip, port);
                     RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
-                    HttpPost httpPost = new HttpPost("https://www.baidu.com");
+                    HttpPost httpPost = new HttpPost("http://www.baidu.com");
                     httpPost.setConfig(config);
                     try (CloseableHttpResponse response = closeableHttpClient.execute(httpPost)) {
                         long time = System.currentTimeMillis() - start;
@@ -100,15 +81,5 @@ public class ProxyIpService {
                 }
             }
         });
-    }
-
-
-    private void doCheckTask(CloseableHttpClient hc , String ip , String port , Properties properties){
-         Map param = new HashMap();
-         param.put("proxyHost" , ip);
-         param.put("proxyPort" , port);
-         param.put("checkUrl" , "https://www.baidu.com");
-
-        threadPoolExecutor.execute(new ProxyValidateTask(hc , param , properties));
     }
 }

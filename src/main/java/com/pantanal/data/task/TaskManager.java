@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.pantanal.data.service.house.HouseService;
+import com.pantanal.data.house.HouseService;
 import com.pantanal.data.service.ProxyIpService;
 
 /**

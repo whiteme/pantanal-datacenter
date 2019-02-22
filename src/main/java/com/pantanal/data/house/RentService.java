@@ -1,4 +1,4 @@
-package com.pantanal.data.service.house;
+package com.pantanal.data.house;
 
 import java.util.ArrayList;
 import java.util.HashMap;

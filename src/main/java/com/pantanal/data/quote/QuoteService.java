@@ -1,4 +1,4 @@
-package com.pantanal.data.service.quote;
+package com.pantanal.data.quote;
 
 import com.pantanal.data.dao.QuoteDao;
 import org.springframework.beans.factory.annotation.Autowired;
