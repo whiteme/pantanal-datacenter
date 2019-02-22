@@ -2,22 +2,36 @@ package com.pantanal.data.task;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pantanal.data.entity.House;
+import com.pantanal.data.entity.ImportLog;
 import com.pantanal.data.func.RawDataTransFunc;
+import com.pantanal.data.service.DataImportService;
+import com.pantanal.data.util.DateUtil;
 import com.pantanal.data.util.StringUtil;
 import org.apache.commons.io.output.FileWriterWithEncoding;
+import org.apache.commons.lang.math.NumberUtils;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Import2DBTask extends BaseTask {
+
+    private static Logger logger = LoggerFactory.getLogger(Import2DBTask.class);
 
     private final static String GLOBAL_DEFAULT_VALUE = "\\N";
 
     private final static String FIELD_SPLIT = "\t";
 
+//    private static SimpleDateFormat sdf = "yyyyMMdd";
+
     private String tableName;
+
+    private String dbName;
 
     private String sourceFilePath;
 
@@ -29,16 +43,25 @@ public class Import2DBTask extends BaseTask {
 
     private Map<String, String> defaultValue;
 
+    private JdbcTemplate jdbcTemplate;
+
+
+
 
     public Import2DBTask(Map param, Properties conf,
-                         Map<String, List<RawDataTransFunc>> valueFunc, Map<String, String> defaultValue,
+                         Map<String, List<RawDataTransFunc>> valueFunc,
+                         Map<String, String> defaultValue,
+                         JdbcTemplate jdbcTemplate,
                          String[] fields) {
         super(param, conf);
-        this.tempFilePath = param.get("tempFilePath").toString();
-        this.sourceFilePath = param.get("sourceFilePath").toString();
+        this.jdbcTemplate = jdbcTemplate;
+        this.tempFilePath = param.get(DataImportService.TASK_PARAM_TMP_FILE_PATH).toString();
+        this.sourceFilePath = param.get(DataImportService.TASK_PARAM_SOURCE_PATH).toString();
         this.rawDataTransConf = valueFunc;
         this.defaultValue = defaultValue;
         this.fields = fields;
+        this.tableName = param.get(DataImportService.TASK_PARAM_TABLENAME).toString();
+        this.dbName = param.get(DataImportService.TASK_PARAM_DBNAME).toString();
     }
 
     @Override
@@ -49,10 +72,53 @@ public class Import2DBTask extends BaseTask {
         try {
             List data = om.readValue(sourceFile, ArrayList.class);
             generateCSVTempFile(data);
+            loadCSVFile2DB();
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         }
 
+    }
+
+    private void loadCSVFile2DB() {
+
+        long startTime = System.currentTimeMillis();
+        String sqlTemplate = "LOAD DATA LOCAL INFILE '%s' INTO TABLE %s;";
+        String sql = String.format(sqlTemplate, this.tempFilePath, this.tableName);
+        int i = jdbcTemplate.update(sql); //tidb 不支持IGNORE
+        logger.info(sql + "写入数据:" + i + "\t时间:" + (System.currentTimeMillis() - startTime));
+
+        File file = new File(this.tempFilePath);
+        file.delete();
+
+        insertInportLog(i);
+    }
+
+    private void insertInportLog(int total){
+        ImportLog importLog = new ImportLog();
+        importLog.setFileName(getParam().get(DataImportService.TASK_PARAM_SOURCE_PATH).toString());
+        importLog.setSource("");
+        importLog.setDay(0);
+        importLog.setCreateDate(new Date());
+
+        Date filetime = DateUtil.toDate(getParam().get(DataImportService.TASK_PARAM_CREATEDATE).toString() , "yyyyMMdd");
+        importLog.setFileTime(filetime);
+        importLog.setTotal(total);
+        save(importLog);
+    }
+
+    public boolean save(ImportLog importLog) {
+        String SQL = "insert into `importlog` " +
+                "(source,city,day,filename,filetime,total,createdate)";
+        SQL += " values(?,?,?,?,?,?,?)";
+        Object args[] = { importLog.getSource(), importLog.getCity(), importLog.getDay(), importLog.getFileName(), importLog.getFileTime(),
+                importLog.getTotal(), importLog.getCreateDate() };
+        int temp = jdbcTemplate.update(SQL, args);
+        if (temp > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -69,9 +135,8 @@ public class Import2DBTask extends BaseTask {
     private void generateCSVTempFile(List data) throws IOException {
         FileWriterWithEncoding fw = null;
         try {
-            fw = new FileWriterWithEncoding(this.tempFilePath, "utf8");
+            fw = new FileWriterWithEncoding(this.tempFilePath, "UTF-8");
             fw.write(generateContent(data));
-            String content = "";
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -95,7 +160,7 @@ public class Import2DBTask extends BaseTask {
                         outVal = processRawValue(fieldName, valList);
                 }
 
-                if(outVal.equals(GLOBAL_DEFAULT_VALUE)){
+                if (outVal.equals(GLOBAL_DEFAULT_VALUE)) {
                     //补充通过原始数据扩展出的内容
                     outVal = fixExtField4Raw(fieldName, rawMap);
 
@@ -114,6 +179,12 @@ public class Import2DBTask extends BaseTask {
         }
         if ("id".equals(fieldName)) {
             retString = UUID.randomUUID().toString();
+        }
+
+        if ("bid".equals(fieldName)) {
+            retString = UUID.randomUUID().toString();
+            //xxx:todo md5 "XUWU" + source + city + comunity + price + square + expore_date
+
         }
 
         if (fieldName.equals("elevator") && rawMap.containsKey("elevator") && !((ArrayList) rawMap.get("elevator")).isEmpty()) {
@@ -177,11 +248,11 @@ public class Import2DBTask extends BaseTask {
         }
         //fill by task conf param map
         if (fieldName.equals("source")) {
-            retString = super.getParam().get("source").toString();
+            retString = super.getParam().get(DataImportService.TASK_PARAM_SOURCE).toString();
         }
 
-        if(fieldName.equals("createdate")){
-            retString = super.getParam().get("createdate").toString();
+        if (fieldName.equals("createdate")) {
+            retString = super.getParam().get(DataImportService.TASK_PARAM_CREATEDATE).toString();
         }
         return retString;
 
@@ -230,13 +301,13 @@ public class Import2DBTask extends BaseTask {
 
 
     public static void main(String args[]) {
-        String[] fields = new String[]{"price", "renttype", "exposuredate", "latitude", "landmark", "city"};
-        Map param = new HashMap();
-        param.put("tempFilePath", "/Users/shenn-litscope/git-Litscope/data-cloud/test-csv.csv");
-        param.put("sourceFilePath", "/Users/shenn-litscope/git-Litscope/data-cloud/lianjia-bj-20190122.json");
-        param.put("source","lianjia");
-        param.put("createdate","20190221");
-        Import2DBTask t = new Import2DBTask(param, null, null, null, fields);
-        t.run();
+//        String[] fields = new String[]{"price", "renttype", "exposuredate", "latitude", "landmark", "city"};
+//        Map param = new HashMap();
+//        param.put("tempFilePath", "/Users/shenn-litscope/git-Litscope/data-cloud/test-csv.csv");
+//        param.put("sourceFilePath", "/Users/shenn-litscope/git-Litscope/data-cloud/lianjia-bj-20190122.json");
+//        param.put("source","lianjia");
+//        param.put("createdate","20190221");
+//        Import2DBTask t = new Import2DBTask(param, null, null, null, fields);
+//        t.run();
     }
 }

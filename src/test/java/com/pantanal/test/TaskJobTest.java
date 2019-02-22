@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
@@ -26,6 +27,10 @@ public class TaskJobTest {
     private DataImportService service;
 
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+
     @Test
     public void testGenerateFile(){
         String fields[]  = service.getFields("xuwu" , "house_raw");
@@ -34,8 +39,21 @@ public class TaskJobTest {
         param.put("tempFilePath", "/Users/shenn-litscope/git-Litscope/data-cloud/test-csv.csv");
         param.put("sourceFilePath" , "/Users/shenn-litscope/git-Litscope/data-cloud/lianjia-bj-20190122.json");
         param.put("source","lianjia");
+        param.put("tableName","house_raw");
+        param.put("dbName","xuwu");
+        param.put("source","lianjia");
         param.put("createdate","20190221");
-        Import2DBTask t = new Import2DBTask(param , null , null , null , fields);
+        Import2DBTask t = new Import2DBTask(param ,
+                    null ,
+                    null ,
+                    null ,
+                    jdbcTemplate,
+                    fields);
         t.run();
+    }
+
+    @Test
+    public void testLastFiletime(){
+        assert(service.getLastImportDate().equals("20190216"));
     }
 }
