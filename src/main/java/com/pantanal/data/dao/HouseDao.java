@@ -1,5 +1,6 @@
 package com.pantanal.data.dao;
 
+import com.pantanal.data.entity.RentHouse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +19,11 @@ public class HouseDao {
     private JdbcTemplate xuwuJdbcTemplate;
 
 
-    private static String insertSql = "insert into `house` (city,name,communityuid,distirct,landmark,room,hall,toilet,price,renttype,size,orien,subway,subwaystation,latitude,longtitude,exposuredate,maxfloor,floorlevel,elevator,visitcnt,createdate,source)"
+    @Autowired
+    private SmartDAO smartDAO;
+
+
+    private static String insertSql = "insert into house (city,name,communityuid,distirct,landmark,room,hall,toilet,price,renttype,size,orien,subway,subwaystation,latitude,longtitude,exposuredate,maxfloor,floorlevel,elevator,visitcnt,createdate,source)"
             + " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static Object[] getInsertParams(House house) {
@@ -57,6 +62,15 @@ public class HouseDao {
 
         return true;
 
+    }
+
+    public List<RentHouse> selectHouseRaw(String sql , Object []args){
+        try {
+            return smartDAO.getList(RentHouse.class , sql , args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

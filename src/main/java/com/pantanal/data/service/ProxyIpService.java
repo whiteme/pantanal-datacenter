@@ -108,7 +108,18 @@ public class ProxyIpService {
          param.put("proxyHost" , ip);
          param.put("proxyPort" , port);
          param.put("checkUrl" , "https://www.baidu.com");
-
+        while(threadPoolExecutor.getActiveCount() < threadPoolExecutor.getCorePoolSize()){
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         threadPoolExecutor.execute(new ProxyValidateTask(hc , param , properties));
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
