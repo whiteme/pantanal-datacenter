@@ -5,6 +5,8 @@ public class RentQuoteEntity {
     private String code;
 
     private String entityName;
+    private String city; // 城市
+    private String district; // 区县
 
     private double high = 0d;
 
@@ -131,5 +133,21 @@ public class RentQuoteEntity {
 
     public void setTotalSquareMeter(int totalSquareMeter) {
         this.totalSquareMeter = totalSquareMeter;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 }
