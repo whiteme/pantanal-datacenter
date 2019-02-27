@@ -3,10 +3,9 @@ package com.pantanal.data.entity;
 public class RentHouse {
 
 
+    public final static String RENT_TYPE_ENTIRE = "" + House.RENTTYPE_ALL;
 
-    public final static String RENT_TYPE_ENTIRE = "1";
-
-    public final static String RENT_TYPE_PART = "0";
+    public final static String RENT_TYPE_PART = "" + House.RENTTYPE_JOIN;
 
     private String houseCode;
 
