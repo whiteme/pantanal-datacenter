@@ -29,7 +29,7 @@ public class DataImportService {
     private static Logger logger = LoggerFactory.getLogger(DataImportService.class);
 
 
-    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 8, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(4, 8, 600L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
 
     private final static String DEFAULT_LAST_IMPORT_DATE = "20000101";
@@ -84,7 +84,7 @@ public class DataImportService {
         }
 
         File raw_dir = new File(RAW_FILE_DIR);
-        String finalBeginDate = beginDate;
+        final String finalBeginDate = beginDate;
         File[] rawFiles = raw_dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -113,23 +113,25 @@ public class DataImportService {
             param.put(TASK_PARAM_SOURCE,nameParts[0]);
             param.put(TASK_PARAM_CREATEDATE,nameParts[nameParts.length-1]);
 
-
-
-
+//            while(true){
+//                int alive = threadPoolExecutor.getActiveCount();
+//                if(alive<4)break;
+//                try {
+//                    Thread.sleep(3000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            logger.info(" ========= Execute Task {} =========== " , fileName);
             Import2DBTask task  = new Import2DBTask(param , null , null , null ,jdbcTemplate , fields);
-            threadPoolExecutor.execute(task);
-
+//            threadPoolExecutor.execute(task);
+            task.run();
 
         }
 
 
     }
 
-
-    @PostConstruct
-    public void init(){
-
-    }
 
 
     public String getLastImportDate(){
@@ -142,7 +144,7 @@ public class DataImportService {
                 return rs.getString("lastdate");
             }
         });
-        if(last != null && ! last.isEmpty()) ret = last.get(0);
+        if(last != null && ! last.isEmpty() && last.get(0) != null) ret = last.get(0);
         return ret;
     }
 

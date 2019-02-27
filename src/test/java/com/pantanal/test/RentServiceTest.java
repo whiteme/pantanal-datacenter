@@ -1,8 +1,12 @@
 package com.pantanal.test;
 
 import com.pantanal.data.PantanalApplication;
+import com.pantanal.data.dao.HouseDao;
+import com.pantanal.data.dao.SmartDAO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -17,6 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(classes = PantanalApplication.class)
 public class RentServiceTest {
 
+
+  static Logger logger = LoggerFactory.getLogger(RentServiceTest.class);
+
   @Autowired
   private RentService service;
 
@@ -27,6 +34,17 @@ public class RentServiceTest {
 
   @Autowired
   private ProxyIpService proxyIpService;
+
+  @Autowired
+  private RentService rentService;
+
+
+  @Autowired
+  private HouseDao houseDao;
+
+  @Autowired
+  private SmartDAO smartDAO;
+
   @Test
   public void contextLoads() {
   }
@@ -49,4 +67,23 @@ public class RentServiceTest {
   public void testProxyIp() {
     proxyIpService.checkProxyIp();
   }
+
+
+  @Test
+  public void testAggrRentHouseInfo(){
+        rentService.aggrPublicSourceRentInfo2Quote();
+  }
+
+
+  @Test
+  public void testSmartDAO(){
+      try {
+          logger.info("count is {} " , smartDAO.getCount("select count(1) from house_raw where source = ? and createdate > ?" , new Object[]{"lianjia" , "2001-01-01"}));
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+
+//      logger.info("data {}" , houseDao.selectHouseRaw("select * from house_raw where source=? and createdate > 2019-02-01 limit 0 , 1000", new Object[]{"lianjia"}));
+  }
+
 }
