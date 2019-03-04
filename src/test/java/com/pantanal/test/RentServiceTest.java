@@ -71,7 +71,7 @@ public class RentServiceTest {
 
   @Test
   public void testAggrRentHouseInfo(){
-        rentService.aggrPublicSourceRentInfo2Quote();
+        rentService.aggrPublicSourceRentInfo2Quote(false);
   }
 
 

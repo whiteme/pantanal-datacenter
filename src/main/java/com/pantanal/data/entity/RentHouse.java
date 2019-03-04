@@ -27,7 +27,7 @@ public class RentHouse {
 
     private String landmark;
 
-    private String communityName;
+    private String community;
 
     private String exposureDay;
 
@@ -39,7 +39,7 @@ public class RentHouse {
 
     private int cityCode;
 
-    private String cityName;
+    private String city;
 
     private boolean isParking;
 
@@ -51,6 +51,15 @@ public class RentHouse {
 
     private String heatingType;
 
+    private String createdate;
+
+    public String getCreatedate() {
+        return createdate;
+    }
+
+    public void setCreatedate(String createdate) {
+        this.createdate = createdate;
+    }
 
     public String getHouseCode() {
         return houseCode;
@@ -132,12 +141,12 @@ public class RentHouse {
         this.landmark = landmark;
     }
 
-    public String getCommunityName() {
-        return communityName;
+    public String getCommunity() {
+        return community;
     }
 
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
+    public void setCommunity(String community) {
+        this.community = community;
     }
 
     public String getExposureDay() {
@@ -180,12 +189,12 @@ public class RentHouse {
         this.cityCode = cityCode;
     }
 
-    public String getCityName() {
-        return cityName;
+    public String getCity() {
+        return city;
     }
 
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public boolean isParking() {

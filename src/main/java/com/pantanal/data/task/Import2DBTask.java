@@ -86,7 +86,7 @@ public class Import2DBTask extends BaseTask {
         String sqlTemplate = "LOAD DATA LOCAL INFILE '%s' INTO TABLE %s;";
         String sql = String.format(sqlTemplate, this.tempFilePath, this.tableName);
         int i = jdbcTemplate.update(sql); //tidb 不支持IGNORE
-        logger.info(sql + "写入数据:" + i + "\t时间:" + (System.currentTimeMillis() - startTime));
+        logger.info(sql + "写入数据:" + i + "\t时间:" + ((System.currentTimeMillis() - startTime)  / 1000));
 
         File file = new File(this.tempFilePath);
         file.delete();
@@ -165,12 +165,21 @@ public class Import2DBTask extends BaseTask {
                     outVal = fixExtField4Raw(fieldName, rawMap);
 
                 }
+                outVal = outVal.replaceAll("\t" , "");
+
                 sb.append(outVal + FIELD_SPLIT);
             }
             sb.append("\n");
         }
         return sb.toString();
     }
+
+//    private String generateBid(Map data){
+//        StringBuffer sb = new StringBuffer();
+//        sb.append("XUWU_").append(getParam().get(DataImportService.TASK_PARAM_SOURCE).toString())
+//                sb.append("_")
+//
+//    }
 
     private String fixExtField4Raw(String fieldName, Map rawMap) {
         String retString = GLOBAL_DEFAULT_VALUE;
@@ -179,6 +188,8 @@ public class Import2DBTask extends BaseTask {
         }
         if ("id".equals(fieldName)) {
             retString = UUID.randomUUID().toString();
+
+
         }
 
         if ("bid".equals(fieldName)) {
@@ -237,8 +248,6 @@ public class Import2DBTask extends BaseTask {
                 } else {
                     if (StringUtil.getInt(tmps[0]) == null) {
                         retString = House.FLOORLEVEL_UNKNOWN + "";
-                    } else {
-                        retString = StringUtil.getInt(tmps[0]) + "";
                     }
                 }
             }

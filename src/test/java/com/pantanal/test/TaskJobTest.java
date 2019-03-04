@@ -2,8 +2,13 @@ package com.pantanal.test;
 
 
 import com.pantanal.data.PantanalApplication;
+import com.pantanal.data.SpringUtils;
+import com.pantanal.data.dao.SmartDAO;
 import com.pantanal.data.service.DataImportService;
+import com.pantanal.data.service.house.RentService;
+import com.pantanal.data.task.ConvertQuoteTask;
 import com.pantanal.data.task.Import2DBTask;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -30,6 +35,12 @@ public class TaskJobTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private RentService rentService;
+
+    @Autowired
+    private SmartDAO smartDAO;
+
 
     @Test
     public void testGenerateFile(){
@@ -55,7 +66,29 @@ public class TaskJobTest {
 
     @Test
     public void testLastFiletime(){
-        System.out.println(service.getLastImportDate());
+//        System.out.println(service.getLastImportDate());
 //        assert(service.getLastImportDate().equals("20190216"));
+
+      new Thread(new Runnable(){
+
+          @Override
+          public void run() {
+              System.out.println(SpringUtils.getBean("rentService"));
+          }
+      }).start();
+    }
+
+
+    @Test
+    public void testConvertQuote(){
+//        Map param = new HashMap();
+//        param.put("source"  , "lianjia");
+//        param.put("beginDate" , "2019-02-01");
+//        ConvertQuoteTask task = new ConvertQuoteTask(param , null );
+//        task.run();
+
+        System.out.println(JSONObject.valueToString(rentService.getPublicRentInfoSources()));
+
+
     }
 }

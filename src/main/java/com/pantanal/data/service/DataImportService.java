@@ -1,7 +1,10 @@
 package com.pantanal.data.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pantanal.data.service.house.RentService;
 import com.pantanal.data.task.Import2DBTask;
+import com.pantanal.data.task.ProxyValidateTask;
+import com.pantanal.data.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,10 +73,19 @@ public class DataImportService {
     }
 
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Autowired
+    private RentService rentService;
+
+    @Scheduled(cron = "0 0 * * 7 ?")
     public void doDetlaImport(){
         logger.info("start import detla");
         importTask("DELTA");
+    }
+
+    @Scheduled(cron = "00 12 * * 1  ?")
+    public void doDeltaAggrRentQuote(){
+        logger.info("执行行情聚合计划任务 ");
+        rentService.aggrPublicSourceRentInfo2Quote(true);
     }
 
 
@@ -98,33 +110,23 @@ public class DataImportService {
             }
         });
         String fields[]  = getFields(IMPORT_DB_NAME , IMPORT_TABLE_NAME);
-        for(File file : rawFiles){
+        for(File file : rawFiles) {
 
             String fileName = file.getName();
-            String [] nameParts = fileName.split("-");
+            String[] nameParts = fileName.split("-");
             String tmpFileName = UUID.randomUUID().toString();
 
 
             Map param = new HashMap();
-            param.put(TASK_PARAM_TMP_FILE_PATH, String.format(IMPORT_TMP_DIR , tmpFileName ));
-            param.put(TASK_PARAM_SOURCE_PATH , file.getAbsolutePath());
-            param.put(TASK_PARAM_TABLENAME,IMPORT_TABLE_NAME);
-            param.put(TASK_PARAM_DBNAME,IMPORT_DB_NAME);
-            param.put(TASK_PARAM_SOURCE,nameParts[0]);
-            param.put(TASK_PARAM_CREATEDATE,nameParts[nameParts.length-1]);
+            param.put(TASK_PARAM_TMP_FILE_PATH, String.format(IMPORT_TMP_DIR, tmpFileName));
+            param.put(TASK_PARAM_SOURCE_PATH, file.getAbsolutePath());
+            param.put(TASK_PARAM_TABLENAME, IMPORT_TABLE_NAME);
+            param.put(TASK_PARAM_DBNAME, IMPORT_DB_NAME);
+            param.put(TASK_PARAM_SOURCE, nameParts[0]);
+            param.put(TASK_PARAM_CREATEDATE, nameParts[nameParts.length - 1].replaceAll(".json" , ""));
 
-//            while(true){
-//                int alive = threadPoolExecutor.getActiveCount();
-//                if(alive<4)break;
-//                try {
-//                    Thread.sleep(3000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-            logger.info(" ========= Execute Task {} =========== " , fileName);
-            Import2DBTask task  = new Import2DBTask(param , null , null , null ,jdbcTemplate , fields);
-//            threadPoolExecutor.execute(task);
+            logger.info(" ========= Execute Task {} =========== ", fileName);
+            Import2DBTask task = new Import2DBTask(param, null, null, null, jdbcTemplate, fields);
             task.run();
 
         }
@@ -147,27 +149,5 @@ public class DataImportService {
         if(last != null && ! last.isEmpty() && last.get(0) != null) ret = last.get(0);
         return ret;
     }
-
-
-    public static void main(String args[]){
-        File raw_dir = new File("/Users/shenn-litscope/git-Litscope/data-cloud");
-        File[] rawFile = raw_dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-
-                boolean ret = false;
-                if(name.endsWith("json")){
-                    name = name.substring(0 , name.length() - 6);
-                    System.out.println(name);
-                    String [] nameParts = name.split("-");
-                    ret = nameParts[nameParts.length-1].compareTo("20190121") > 0;
-                }
-
-                return ret;
-            }
-        });
-    }
-
-
 
 }
