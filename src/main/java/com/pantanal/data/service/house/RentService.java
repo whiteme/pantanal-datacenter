@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 
 import com.pantanal.data.dao.HouseDao;
+import com.pantanal.data.task.ConvertQuoteTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,10 @@ import com.pantanal.data.util.JsonLoader;
 @Service
 public class RentService {
 
-    public  static final String DEFAULT_AGGR_HOUSE_DATE = "20000101" ;
+    public  static final String DEFAULT_AGGR_HOUSE_DATE = "20100101" ;
 
 
-    private static Map<String, Community> COMMUNITY_DATA = new HashMap<String, Community>();
+    private static ConcurrentHashMap<String, Community> COMMUNITY_DATA = new ConcurrentHashMap<String, Community>();
 
     @Autowired
     private QuoteDao quoteDao;
@@ -43,10 +45,10 @@ public class RentService {
 
     @PostConstruct
     public void LoadCommunityData() {
-        List<Community> data = communityDao.select();
-        for (Community c : data) {
-            COMMUNITY_DATA.put(c.getCode(), c);
-        }
+//        List<Community> data = communityDao.select();
+//        for (Community c : data) {
+//            COMMUNITY_DATA.put(c.getCode(), c);
+//        }
     }
 
     public static final int QUOTE_TYPE_INTENRN = 1;
@@ -55,9 +57,16 @@ public class RentService {
 
 
     public Object[] combineRentHouseInfoQuote(List<RentHouse> rentHouseInfos) {
+        Map<String, RentQuoteEntity>  quoteData = convert(rentHouseInfos);
+
+        return quoteData.values().toArray();
+    }
+
+
+    private Map<String, RentQuoteEntity> convert(List<RentHouse> rentHouseInfos){
         Map<String, RentQuoteEntity> quoteData = new HashMap<String, RentQuoteEntity>();
         for (RentHouse house : rentHouseInfos) {
-            if (house.getRentType().equals(RentHouse.RENT_TYPE_ENTIRE)) {
+            if (house.getRentType().equals(RentHouse.RENT_TYPE_ENTIRE) && null != house.getCommunity()) {
                 Community community = locateCommunity(house);
                 if (community != null) {
                     RentQuoteEntity quote = quoteData.get(community.getCode());
@@ -65,30 +74,60 @@ public class RentService {
                         quote = new RentQuoteEntity();
                         quote.setCode(community.getCode());
                         quote.setEntityName(community.getCommunityName());
-                        quote.setDate(house.getExposureDay());
+                        quote.setDate(house.getCreatedate());
+                        quote.setCity(community.getCity());
+
+                        String dist = house.getDistrict() != null ? house.getDistrict() : community.getDistrict();
+                        quote.setDistrict(dist);
                         quoteData.put(quote.getCode(), quote);
+
                     }
                     aggrQuote(quote, house);
                 }
 
             }
         }
-
-        return quoteData.values().toArray();
+        return quoteData;
     }
 
 
     public List<RentQuoteEntity> combineRentHouseInfoQuote2List(List<RentHouse> rentHouseInfos){
-        return null;
+        List<RentQuoteEntity> ret = new ArrayList<RentQuoteEntity>();
+        Map<String, RentQuoteEntity> quoteData = convert(rentHouseInfos);
+        if(!quoteData.isEmpty()){
+            ret.addAll(quoteData.values());
+        }
+        return ret;
     }
 
 
 
 
 
-    public Community locateCommunity(RentHouse house) {
-        String code = org.apache.commons.codec.digest.DigestUtils.md5Hex(house.getCityName() + "-" + house.getCommunityName());
+    public Community locateCommunityBak(RentHouse house) {
+        String code = org.apache.commons.codec.digest.DigestUtils.md5Hex(house.getCity() + "-" + house.getCommunity());
         return COMMUNITY_DATA.get(code);
+    }
+
+
+    public Community locateCommunity(RentHouse house){
+        Community c = null;
+        String code = org.apache.commons.codec.digest.DigestUtils.md5Hex(house.getCity() + "-" + house.getCommunity());
+        if(COMMUNITY_DATA.containsKey(code)){
+            c = COMMUNITY_DATA.get(code);
+
+        }else{
+//             logger.info("Add Non Presistent Community {} , {} , {} " , house.getCommunity() , house.getCity() , house.getDistrict());
+             c = new Community();
+             c.setCommunityName(house.getCommunity());
+             c.setCity(house.getCity());
+             c.setDistrict(house.getDistrict());
+             c.setCode(code);
+             COMMUNITY_DATA.put(code , c);
+
+        }
+
+        return c;
     }
 
     private void aggrQuote(RentQuoteEntity quote, RentHouse houseInfo) {
@@ -142,7 +181,8 @@ public class RentService {
 
             List cl = m.get("community");
             if (!cl.isEmpty())
-                h.setCommunityName(cl.get(0).toString());
+//                h.setCommunityName(;
+                h.setCommunity(cl.get(0).toString());
 
             List ll = m.get("landmark");
             if (!ll.isEmpty())
@@ -182,7 +222,7 @@ public class RentService {
                 }
 
             }
-            h.setCityName(cityName);
+            h.setCity(cityName);
 
             ret.add(h);
 
@@ -190,31 +230,30 @@ public class RentService {
         return ret;
     }
 
-
-    public void aggrPublicSourceRentInfo2Quote() {
+    /**
+     *  聚合行情数据入口函数
+     *
+     */
+    public void aggrPublicSourceRentInfo2Quote(boolean delta) {
         List<String> sources = getPublicRentInfoSources();
         Map<String , String> quoteLatestInfo = getLatestQuoteInfo(0);
         for (String source : sources) {
             String aggrBeginDate = DEFAULT_AGGR_HOUSE_DATE;
-            if(quoteLatestInfo.containsKey(source)){
+            if(delta && quoteLatestInfo.containsKey(source)){
                 aggrBeginDate = quoteLatestInfo.get(source);
             }
+            logger.info("聚合公共行情出租信息 {} ,  {}" , source, aggrBeginDate);
 
-            List<RentHouse> rhs = getRentHouse(source , aggrBeginDate);
-            Object[] quotes = combineRentHouseInfoQuote(rhs);
-            savePublicQuote(quotes);
+            Map param = new HashMap();
+            param.put("source" , source);
+            param.put("beginDate" , aggrBeginDate);
+            //启动多线程运行
+            new Thread(new ConvertQuoteTask(param, null)).start();
+
 
         }
     }
 
-    private void savePublicQuote(Object[] quotes) {
-    }
-
-
-    private List<RentHouse> getRentHouse(String source , String date){
-        String sql = "select * from house_raw where source=? and createdate > ?";
-        return houseDao.selectHouseRaw(sql , new Object[]{ source  , date});
-    }
 
 
     public Map<String, String> getLatestQuoteInfo(int type) {

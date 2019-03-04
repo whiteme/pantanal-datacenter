@@ -4,6 +4,10 @@ public class Community {
 
     private String code;
 
+    private String city;
+
+    private String district;
+
     private String communityName;
 
     private int buildingAmount;
@@ -161,5 +165,22 @@ public class Community {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 }

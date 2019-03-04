@@ -101,6 +101,7 @@ public class SmartDAO {
             }
             logger.debug(user + " execute sql=[" + sql + "]\nargs=[" + sb0.toString() + "]");
         }
+
         return jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 
@@ -124,7 +125,11 @@ public class SmartDAO {
             }
             logger.debug("[sql]=[" + sql + "]\n[args]=[" + sb.toString() + "]");
         }
-        return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(clazz), args);
+
+        BeanPropertyRowMapper mapper = BeanPropertyRowMapper.newInstance(clazz);
+        mapper.setPrimitivesDefaultedForNullValue(true);
+
+        return jdbcTemplate.query(sql, mapper, args);
     }
 
     public <T> T find(Class<T> clazz, String sql) throws Exception {
@@ -142,6 +147,7 @@ public class SmartDAO {
     public <T> T find(Class<T> clazz, String sql, Map<String, String> args) throws Exception {
         try {
             logger.debug("[sql]=[" + sql + "]");
+//            BeanPropertyRowMapper.newInstance(clazz).
             return jdbcTemplate.queryForObject(sql, BeanPropertyRowMapper.newInstance(clazz), args);
         } catch (EmptyResultDataAccessException e) {
             return null;

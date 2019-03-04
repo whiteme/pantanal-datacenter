@@ -181,14 +181,22 @@ public class DateUtil {
      */
     public static String addDays(String dateString, int day) {
         Date date = null;
+        String fmt = DATE_FMT_1;
         if (isDate(dateString, DATE_FMT_1)) {
             date = toDate(dateString, DATE_FMT_1);
         } else if (isDate(dateString, DATE_FMT_2)) {
+            fmt = DATE_FMT_2;
             date = toDate(dateString, DATE_FMT_2);
         } else if (isDate(dateString, DATE_FMT_3)) {
+            fmt = DATE_FMT_3;
             date = toDate(dateString, DATE_FMT_3);
         } else if (isDate(dateString, DATE_FMT_4)) {
+            fmt = DATE_FMT_4;
             date = toDate(dateString, DATE_FMT_4);
+
+        }else if (isDate(dateString, DATE_FMT_6)) {
+            fmt = DATE_FMT_6;
+            date = toDate(dateString, DATE_FMT_6);
 
         }
 
@@ -200,7 +208,7 @@ public class DateUtil {
             return dateString;
         }
 
-        return addDays(date, day);
+        return addDays(date, day , fmt);
     }
 
     /**
@@ -210,10 +218,34 @@ public class DateUtil {
      * @param day
      * @return 格式yyyyMMddHHmmss的时间
      */
-    public static String addDays(Date date, int day) {
+    public static String addDays(Date date, int day ) {
         String dateString;
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FMT_1);
+            Calendar calendar = dateFormat.getCalendar();
+            calendar.setTime(date);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + day);
+
+            dateString = dateFormat.format(calendar.getTime());
+
+            return dateString;
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
+
+    /**
+     * 增加天数
+     *
+     * @param date
+     * @param day
+     * @return 格式yyyyMMddHHmmss的时间
+     */
+    public static String addDays(Date date, int day  , String fmt) {
+        String dateString;
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(fmt);
             Calendar calendar = dateFormat.getCalendar();
             calendar.setTime(date);
             calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + day);
