@@ -58,8 +58,6 @@ public class TaskManager {
 
     @Scheduled(cron = "00 10/10 * * * *")
     public void checkProxyIp() {
-        log.info("=====checkProxyIp start=====");
         proxyIpService.checkProxyIp();
-        log.info("=====checkProxyIp end=====");
     }
 }
