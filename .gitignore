@@ -5,3 +5,10 @@ build/
 bin/
 build/
 gradle/
+.DS_Store
+.classpath
+.project
+data-cloud.iml
+xuwu.log
+xuwu-debug.log
+.vscode/launch.json

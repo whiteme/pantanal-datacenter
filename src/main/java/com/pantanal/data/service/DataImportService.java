@@ -76,13 +76,13 @@ public class DataImportService {
     @Autowired
     private RentService rentService;
 
-    @Scheduled(cron = "0 0 * * 7 ?")
+    @Scheduled(cron = "0 0 1 * * 7 ")
     public void doDetlaImport(){
         logger.info("start import detla");
         importTask("DELTA");
     }
 
-    @Scheduled(cron = "00 12 * * 1  ?")
+    @Scheduled(cron = "0 0 1 * * 1 ")
     public void doDeltaAggrRentQuote(){
         logger.info("执行行情聚合计划任务 ");
         rentService.aggrPublicSourceRentInfo2Quote(true);

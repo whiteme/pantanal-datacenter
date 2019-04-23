@@ -1,4 +1,4 @@
-package com.pantanal.data;
+package com.pantanal.data.config;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

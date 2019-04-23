@@ -2,11 +2,10 @@ package com.pantanal.test;
 
 
 import com.pantanal.data.PantanalApplication;
-import com.pantanal.data.SpringUtils;
+import com.pantanal.data.config.SpringUtils;
 import com.pantanal.data.dao.SmartDAO;
 import com.pantanal.data.service.DataImportService;
 import com.pantanal.data.service.house.RentService;
-import com.pantanal.data.task.ConvertQuoteTask;
 import com.pantanal.data.task.Import2DBTask;
 import org.json.JSONObject;
 import org.junit.Test;

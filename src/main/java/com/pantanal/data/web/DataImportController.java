@@ -5,11 +5,9 @@ import com.pantanal.data.service.house.RentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 @RestController
 @RequestMapping(value = "/wx")
 public class DataImportController {
@@ -35,9 +33,24 @@ public class DataImportController {
             rentService.aggrPublicSourceRentInfo2Quote(false);
         }
 
+        return "SUCCESS";
+    }
 
+
+    @GetMapping(value="/import/delta/{import_type}" )
+    public String deltaImport(@PathVariable() String import_type ){
+        logger.info("Receive Import task {} " , import_type);
+        if("HOUSE".equals(import_type.toUpperCase())){
+            dataImportService.importTask("DELTA");
+        }else if("QUOTE".equals(import_type.toUpperCase())){
+            rentService.aggrPublicSourceRentInfo2Quote(true);
+        }
 
         return "SUCCESS";
     }
+    public static void main(String args[]) throws UnsupportedEncodingException {
+        System.out.println(URLEncoder.encode("https://www.baidu.com" , "utf-8"));
+    }
+
 
 }

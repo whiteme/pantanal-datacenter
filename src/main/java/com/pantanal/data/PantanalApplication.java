@@ -11,6 +11,5 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class PantanalApplication {
     public static void main(String args[]){
         ApplicationContext ctx = SpringApplication.run(PantanalApplication.class , args);
-//        SpringUtils
     }
 }

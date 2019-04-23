@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.pantanal.data.service.quote.QuoteService;
 import com.pantanal.data.task.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/wx")
+@RequestMapping(value = "/pantanal")
 public class QuoteController {
 
     @Autowired
@@ -45,6 +46,13 @@ public class QuoteController {
         retString = JSONObject.toJSONString(tmp);
         return retString;
     }
+
+
+    @GetMapping(value = "/series/avg")
+    public Object queryRentAvgPriceGroupbyCity(){
+        return null;
+    }
+
     
     
     @RequestMapping(value="/house/import" , method = RequestMethod.GET)

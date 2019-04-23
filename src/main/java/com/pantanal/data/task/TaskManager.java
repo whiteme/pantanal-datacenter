@@ -30,16 +30,16 @@ public class TaskManager {
 
     @Scheduled(cron = "00 00 01 * * *")
     public void importHouse() {
-        log.info("=====importHouse start=====");
+//        log.info("=====importHouse start=====");
         String dirPath = "/opt/xuwu/crawl-data";
         File dir = new File(dirPath);
         if (!dir.exists()) {
-            log.error("=====importHouse error, dir:" + dirPath + " not existed!=====");
+//            log.error("=====importHouse error, dir:" + dirPath + " not existed!=====");
         } else if (!dir.isDirectory()) {
             log.error("=====importHouse error, dir:" + dirPath + " is not directory!=====");
         } else {
             File[] files = dir.listFiles();
-            log.info("=====importHouse start import " + files.length + " files=====");
+//            log.info("=====importHouse start import " + files.length + " files=====");
             long time;
             for (File file : files) {
                 try {
@@ -56,7 +56,7 @@ public class TaskManager {
         log.info("=====importHouse end=====");
     }
 
-    @Scheduled(cron = "00 10/10 * * * *")
+//    @Scheduled(cron = "00 10/10 * * * *")
     public void checkProxyIp() {
         proxyIpService.checkProxyIp();
     }

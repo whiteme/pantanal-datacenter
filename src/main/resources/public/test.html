@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<script>
+    // $.headder
+    // $.get('http://db.mtrading.io:10002/v1/bridge/symbol/symbols',function (data) {
+    // //$.get('http://localhost:8081/v1/bridge/symbol/symbols',function (data) {
+    //     alert(data);
+    // });
+
+//     $.ajax({
+
+//         type: "get",
+
+//         url:"http://localhost:8080/v1/bridge/symbol/symbols?symbolType=v",
+//         // url:"http://localhost:8080/v1/tw/TWUserAPI/detail?userId=dd",
+
+
+//         // dataType: "jsonp" , 
+
+//         // data: {"key":"value"},
+
+//         headers : {
+//         'Access-Control-Allow-Origin': '*' , 
+//         'Access-Control-Allow-Methods' : '*' ,
+//         'Access-Control-Allow-Credentials': 'false',
+//         // 'Access-Control-Allow-Headers': 'x-mtd-token',
+//         'x-mtd-token' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7ImxvZ2luVGltZSI6MTU1NTMwMDQ4MzU4OCwicGhvbmUiOiIxODgxMjM0NDMyMSIsInJlbW90ZUhvc3QiOm51bGwsImxhc3RPcHRpbWUiOjE1NTUzODMyODM1ODgsImFjY291bnRzIjpbXSwidXNlcklkIjoiMDk5YTI0YTUtMTcwMi00ZWQyLTg5ODYtODU1ZGQ4ZTE2NWZmIn19.AKas-ExPiOlM17jCKOjzwahmYyhBSEE0diXzk8ycITc'
+//         },
+
+//         success: function(data){ alert(data); },
+
+//         error: function(data){ alert(JSON.stringify(data)); } ,
+
+// });
+
+
+msc_host = 'https://api.sweetvetch.com/msc/'
+bridge_host = 'https://api.sweetvetch.com/bridge/'
+tw_host = 'https://api.sweetvetch.com/tw/'
+
+var CodeType = {
+    Register: 'Register',
+    ResetPassword: 'ResetPassword',
+    UpdatePhoneNumber: 'UpdatePhoneNumber'
+}
+Object.freeze(CodeType);
+var myHeaders = new Headers({
+    // 'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json'
+});
+var param = {
+    headers: myHeaders,
+    mode: 'cors',
+    credentials: 'include'
+};
+function fetch_it(url, method) {
+    const token = localStorage.getItem('x_mtd_token')
+    if (token != null) {
+        myHeaders.append('x-mtd-token', token)
+    }
+    param['method'] = method;
+    return window.fetch(url, param)
+}
+function http_get(url) {
+    return fetch_it(url, 'GET')
+}
+
+alert(JSON.stringify('http://localhost:8080/v1/tw/TWUserAPI/detail?userId=4e4f1d40-c49d-4207-bac2-f0e919ae5f16')))
+</script>
+</body>
+</html>

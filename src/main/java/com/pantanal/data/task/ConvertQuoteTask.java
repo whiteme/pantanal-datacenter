@@ -1,12 +1,11 @@
 package com.pantanal.data.task;
 
-import com.pantanal.data.SpringUtils;
+import com.pantanal.data.config.SpringUtils;
 import com.pantanal.data.dao.SmartDAO;
 import com.pantanal.data.entity.RentHouse;
 import com.pantanal.data.entity.RentQuoteEntity;
 import com.pantanal.data.service.house.RentService;
 import com.pantanal.data.util.DateUtil;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
